@@ -1,0 +1,66 @@
+#!/usr/bin/env ruby
+# frozen_string_literal: true
+
+require 'pathname'
+require 'fileutils'
+
+class LoaderGenerator
+  def call
+    delete
+    auto_loader = yield
+    write <<~HEADER
+      # frozen_string_literal: true
+
+      # File generated automatically, do not edit
+
+    HEADER
+    auto_loader.on_load do |_cpath, _value, abspath|
+      next if abspath !~ /.rb$/i # skip directories
+
+      add_require path_to_requirement(abspath)
+    end
+    auto_loader.eager_load
+  end
+
+  private
+
+  def path_to_requirement(abspath)
+    relative_path_from(loader_dir, abspath).sub(/.rb$/i, '')
+  end
+
+  def add_require(requirement)
+    write "require '#{requirement}'"
+  end
+
+  def write(text)
+    File.open(loader_path, 'a') { |f| f.puts text }
+  end
+
+  def delete
+    FileUtils.rm_f(loader_path)
+  end
+
+  def relative_path_from(base_dir, target_path)
+    target = Pathname.new(target_path)
+    base = Pathname.new(base_dir)
+    target.relative_path_from(base).to_s
+  end
+
+  attr_reader :loader_path, :loader_dir
+
+  def initialize(loader_path)
+    @loader_path = loader_path
+    @loader_dir = File.dirname(loader_path)
+  end
+end
+
+require 'bundler/setup'
+
+loader_path = File.join(__dir__, '..', 'lib', 'basic_loader.rb')
+generator = LoaderGenerator.new(loader_path)
+generator.call do
+  require 'zeitgeist'
+  Zeitgeist::CODE_LOADER
+end
+
+puts 'Loader updated'
