@@ -1,7 +1,6 @@
 # frozen_string_literal: true
 
-Process.wait fork { load "bin/update-loader" }
-raise "Loader updating failed" unless $?.exitstatus.zero?
+raise "Failed to regenerate basic loader" unless system "bin/loader generate"
 require "zeitgeist"
 
 RSpec.configure do |config|
