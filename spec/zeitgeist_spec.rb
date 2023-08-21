@@ -6,6 +6,6 @@ RSpec.describe Zeitgeist do
   end
 
   it "does something useful" do
-    expect(false).to eq(true)
+    expect(Zeitgeist::Programmer.new.happy?).to eq("yes")
   end
 end
