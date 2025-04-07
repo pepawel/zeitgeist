@@ -5,7 +5,7 @@ When built, the gem won't depend on Zeitwerk and will still work.
 
 For details, see:
 
-https://blog.pawelpokrywka.com/p/gem-with-zeitwerk-as-development-only-dependency
+https://www.pawelpokrywka.com/p/gem-with-zeitwerk-as-development-only-dependency
 
 ## License
 
